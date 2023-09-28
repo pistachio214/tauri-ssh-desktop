@@ -1,52 +1,63 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/tauri";
-import "./App.css";
+import React from "react";
+import { ReactTerminal } from 'react-terminal';
 
-function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+// import { invoke } from "@tauri-apps/api/tauri";
+import { TerminalContainer, TerminalBackgroupContainer } from "./styles/app";
 
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-    setGreetMsg(await invoke("greet", { name }));
+const App: React.FC = () => {
+
+  const themeBGColor: string = "#272B36";
+
+  // Define commands here
+  const commands = {
+  };
+
+  const buildCommand = (commands: string[]): string => {
+    let command = "";
+
+    if (commands[1] !== undefined) {
+      if (commands[1] === '') {
+        command = commands[0];
+      } else {
+        command = commands.join(" "); // 使用空格作为连接符
+      }
+    }
+
+    return command;
+  }
+
+  const executeCommands = (command: String) => {
+
+    return `传递到 Rust 去链接 SSH 客户端, 然后执行 ${command}`
   }
 
   return (
-    <div className="container">
-      <h1>Welcome to Tauri!</h1>
+    <TerminalBackgroupContainer color={themeBGColor}>
+      <TerminalContainer>
+        <ReactTerminal
+          commands={commands}
+          prompt={"$"}
+          showControlBar={false}
+          showControlButtons={false}
+          welcomeMessage={<>Welcome to React Terminal <br /></>}
+          defaultHandler={(...commands: string[]) => {
+            let command = buildCommand(commands);
+            console.log("输入的命令是: ", command);
 
-      <div className="row">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
+            return executeCommands(command);
+          }}
+          themes={{
+            "default-theme": {
+              themeBGColor: themeBGColor,
+              themeToolbarColor: themeBGColor,
+              themeColor: "#FFFEFC",
+              themePromptColor: "#a917a8"
+            }
+          }}
+          theme={"default-theme"}
         />
-        <button type="submit">Greet</button>
-      </form>
-
-      <p>{greetMsg}</p>
-    </div>
+      </TerminalContainer>
+    </TerminalBackgroupContainer>
   );
 }
 
